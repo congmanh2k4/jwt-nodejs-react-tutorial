@@ -1,11 +1,10 @@
-import mysql from "mysql2";
-
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  database: "jwt",
-});
+import mysql from "mysql2/promise";
+import bluebird from "bluebird";
 import bcrypt from "bcryptjs";
+
+// create the connection, specify bluebird as Promise
+
+
 const salt = bcrypt.genSaltSync(10);
 
 const hashUserPassword = (userPassword) => {
@@ -13,31 +12,45 @@ const hashUserPassword = (userPassword) => {
   return hashPassword;
 };
 
-const createNewUser = (email, password, username) => {
+const createNewUser = async(email, password, username) => {
   let hashPass = hashUserPassword(password);
-  connection.query(
-    "INSERT INTO user (email,password,username) VALUES (?, ?, ?)",
-    [email, hashPass, username],
-    function (err, results, fields) {
-      if (err) {
-        console.log(err);
-      }
-    }
-  );
+    const connection = await mysql.createConnection({host:'localhost', user: 'root', database: 'jwt', Promise: bluebird});
+
+    try {
+    const [rows, fields] = await connection.execute('INSERT INTO user (email,password,username) VALUES (?, ?, ?)',[email, hashPass, username]);
+    return rows;
+  } catch (error) {
+    console.log(">>check error: ", error);
+  }
 };
-const getUserList = () => {
+const getUserList = async() => {
+  const connection = await mysql.createConnection({host:'localhost', user: 'root', database: 'jwt', Promise: bluebird});
+
     let users = [];
-    connection.query(
-    "SELECT * FROM user ",
-    function (err, results, fields) {
-      if (err) {
-        console.log(err);
-      }
-      console.log("get user", results);
-    }
-  );
+  try {
+    const [rows, fields] = await connection.execute('SELECT * FROM user');
+    return rows;
+  } catch (error) {
+    console.log(">>check error: ", error);
+  }
+
+
+}
+const deleteUser = async(id) => {
+  //;
+  const connection = await mysql.createConnection({host:'localhost', user: 'root', database: 'jwt', Promise: bluebird});
+
+    let users = [];
+  try {
+    const [rows, fields] = await connection.execute('DELETE FROM user WHERE id=?',[id]);
+    return rows;
+  } catch (error) {
+    console.log(">>check error: ", error);
+  }
+
 }
 module.exports = {
   createNewUser,
-  getUserList
+  getUserList,
+  deleteUser
 };
