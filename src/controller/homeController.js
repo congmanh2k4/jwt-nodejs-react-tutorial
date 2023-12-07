@@ -1,10 +1,12 @@
+import user from '../models/models/user';
 import userService from '../service/userService';
 const handleHelloWorld = (res, req) => {
   return req.render("home.ejs");
 };
 const handleUserPage = async(res, req) => {
   
-  let userList = await userService.getUserList();
+  let userList = [];
+  userList = await userService.getUserList();
   await userService.deleteUser();
   return req.render("user.ejs",{userList});
 };
