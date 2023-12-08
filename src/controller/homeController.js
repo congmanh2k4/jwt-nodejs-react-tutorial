@@ -1,14 +1,12 @@
-import user from '../models/models/user';
 import userService from '../service/userService';
-const handleHelloWorld = (res, req) => {
-  return req.render("home.ejs");
+const handleHelloWorld = (req, res) => {
+  return res.render("home.ejs");
 };
-const handleUserPage = async(res, req) => {
-  
+const handleUserPage = async(req, res) => {
   let userList = [];
   userList = await userService.getUserList();
-  await userService.deleteUser();
-  return req.render("user.ejs",{userList});
+  // await userService.deleteUser();
+  return res.render("user.ejs",{userList});
 };
 const handleCreateNewUser = (req, res) => {
   let email = req.body.email;
@@ -19,19 +17,16 @@ const handleCreateNewUser = (req, res) => {
    
   return res.redirect("/user");
 };
-
 const handleDeleteUser = async(req,res) =>{
   await userService.deleteUser(req.params.id);
   return res.redirect("/user");
 }
-
 const getUpdateUserPage = async(req,res)=>{
   let id = req.params.id;
   let user = await userService.getUserById(id);
   let userData = {};
-  if(user && user.length > 0){
-    userData = user[0];
-  }
+  userData = user;
+  // console.log("check user data: ",userData);
   return res.render("user-update.ejs",{userData});
 }
 const handleUpdateUser = async(req,res) => {
