@@ -22,17 +22,30 @@ const createNewUser = async (email, password, username) => {
   } catch (error) {}
 };
 const getUserList = async () => {
+  //test relationship
+  let newUser = await db.User.findOne({
+    where: {id: 1},
+    attributes: ["id", "username","email"],
+    include: {
+      model: db.Group,
+      attributes: [ "name","description"]
+    },
+    raw: true,
+    nest: true
+  })
+  console.log("check new user: ", newUser);
+
+  let roles = await db.Role.findAll({
+    include: {model: db.Group, where: {id:1}},
+    attributes: [ "url","description"],
+    raw: true,
+    nest: true
+  });
+  console.log("check role: ", roles);
+
   let users = [];
   users = await db.User.findAll();
   return users;
-  // const connection = await mysql.createConnection({host:'localhost', user: 'root', database: 'jwt', Promise: bluebird});
-  // try {
-  //   const [rows, fields] = await connection.execute('SELECT * FROM user');
-  //     return rows;
-
-  // } catch (error) {
-  //   console.log(">>check : ", error);
-  // }
 };
 const deleteUser = async (userId) => {
   try {
