@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 
-const sequelize = new Sequelize("jwt", "root", null, {
+const sequelize = new Sequelize("jwtBackend", "Manh", "congmanh2k4", {
   host: "localhost",
   dialect: "mysql",
 });
