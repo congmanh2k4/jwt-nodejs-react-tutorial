@@ -4,9 +4,7 @@ import bcrypt from "bcryptjs";
 import db from "../models/index";
 
 // create the connection, specify bluebird as Promise
-
 const salt = bcrypt.genSaltSync(10);
-
 const hashUserPassword = (userPassword) => {
   let hashPassword = bcrypt.hashSync(userPassword, salt);
   return hashPassword;
