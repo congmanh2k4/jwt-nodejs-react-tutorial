@@ -1,9 +1,12 @@
+require('dotenv').config();
 import mysql from "mysql2/promise";
 import bluebird from "bluebird";
 import bcrypt from "bcryptjs";
 import db from "../models/index";
 import { Op } from "sequelize";
 import { raw } from "body-parser";
+import {getGroupWithRole} from "./jwtService"
+import { createJWT, verifyToken } from "../middleware/JWTAction"
 const checkEmailExist = async (userEmail) => {
   let isExist = await db.User.findOne({
     where: { email: userEmail },
@@ -68,6 +71,7 @@ const createRegisterNewUser = async (rawUser) => {
       email: rawUser.email,
       phone: rawUser.phone,
       password: hassPassword,
+      groupId: 5
     });
     return {
       EM: "Successfully",
@@ -88,19 +92,31 @@ const handleUserLogin = async (rawData) => {
   try {
     let user = await db.User.findOne({
       where: {
-        [Op.or]: [{ email: rawData.valueLogin }, { phone: rawData.valueLogin }],
+        [Op.or]: [{ email: rawData.valueLogin }, 
+          { phone: rawData.valueLogin }],
       },
     });
     // console.log("check javascript user", user.get({ plain: true }));
     // console.log("check sequelize user", user);
     if (user) {
-        console.log(">>>found user with email/phone");
       let isCheckPassword = checkPassword(rawData.password, user.password);
       if (isCheckPassword === true) {
+        
+        //test role
+        let groupWithRoles = await getGroupWithRole(user);
+        let payload = {
+          email: user.email,
+          groupWithRoles,
+          expiresIn: process.env.JWT_EXPIRES_IN
+        }
+        let token = createJWT(payload);
         return {
           EM: "Ok",
           EC: 0,
-          DT: "",
+          DT: {
+            access_token: token,
+            groupWithRoles
+          },
         };
       }
     }
@@ -109,11 +125,6 @@ const handleUserLogin = async (rawData) => {
       EM: "Your email/phone or password is incorrect.",
       EC: 1,
       DT: "",
-    };
-
-    return {
-      EM: "Something wrong",
-      EC: "-2",
     };
   } catch (error) {
     console.log(error);

@@ -9,7 +9,7 @@ const handleLogin = async (req,res) => {
     try {
         let data = await loginRegister.handleUserLogin(req.body);
         return res.status(200).json({
-            EM: data.EM,
+            EM: data.EM,    
             EC: data.EC,
             DT: data.DT
         })
