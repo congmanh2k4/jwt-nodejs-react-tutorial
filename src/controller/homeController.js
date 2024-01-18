@@ -3,11 +3,15 @@ const handleHelloWorld = (req, res) => {
    return res.render("home.ejs");
 };
 const handleUserPage = async (req, res) => {
+   // Cookies that have not been signed
+   console.log('Cookies: ', req.cookies);
+
    let userList = [];
    userList = await userService.getUserList();
    // await userService.deleteUser();
    return res.render("user.ejs", { userList });
 };
+
 const handleCreateNewUser = (req, res) => {
    let email = req.body.email;
    let password = req.body.password;

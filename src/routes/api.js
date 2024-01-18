@@ -8,6 +8,15 @@ const router = express.Router();
  *
  * @param {*} app : express app
  */
+
+const testMiddleWare = (req, res, next) => {
+  console.log("calling a middleware");
+  if(true) {
+    return res.send("reject middleware");
+  }
+  next();
+}
+
 const initApiRoutes = (app) => {
   router.get("/user/read", userController.readFunc);
   router.get("/group/read", groupController.readFunc);
