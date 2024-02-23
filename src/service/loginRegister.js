@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import db from "../models/index";
 import { Op } from "sequelize";
 import { raw } from "body-parser";
-import {getGroupWithRole} from "./jwtService"
+import { getGroupWithRole } from "./jwtService"
 import { createJWT, verifyToken } from "../middleware/JWTAction"
 const checkEmailExist = async (userEmail) => {
   let isExist = await db.User.findOne({
@@ -92,8 +92,8 @@ const handleUserLogin = async (rawData) => {
   try {
     let user = await db.User.findOne({
       where: {
-        [Op.or]: [{ email: rawData.valueLogin }, 
-          { phone: rawData.valueLogin }],
+        [Op.or]: [{ email: rawData.valueLogin },
+        { phone: rawData.valueLogin }],
       },
     });
     // console.log("check javascript user", user.get({ plain: true }));
@@ -101,13 +101,13 @@ const handleUserLogin = async (rawData) => {
     if (user) {
       let isCheckPassword = checkPassword(rawData.password, user.password);
       if (isCheckPassword === true) {
-        
+
         //test role
         let groupWithRoles = await getGroupWithRole(user);
         let payload = {
           email: user.email,
+          username: user.username,
           groupWithRoles,
-          expiresIn: process.env.JWT_EXPIRES_IN
         }
         let token = createJWT(payload);
         return {
@@ -115,12 +115,14 @@ const handleUserLogin = async (rawData) => {
           EC: 0,
           DT: {
             access_token: token,
-            groupWithRoles
+            groupWithRoles,
+            email: user.email,
+            username: user.username
           },
         };
       }
     }
-    console.log(">>>not found user with email/phone", rawData.valueLogin," password",rawData.password);
+    console.log(">>>not found user with email/phone", rawData.valueLogin, " password", rawData.password);
     return {
       EM: "Your email/phone or password is incorrect.",
       EC: 1,
